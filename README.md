@@ -1,6 +1,5 @@
 ## **OBS Window Switcher**
 
-\
 Automatically switches a Window Capture Source to a new window when the currently captured window is closed.
 
 \
