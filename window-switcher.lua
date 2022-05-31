@@ -1,5 +1,7 @@
---- window hook for obs-studio ---
---- mtxwrz / mtxwrz@gmail.com / mtxwrz#5848 ---
+--[[ window-switcher.lua ]]
+
+--- window autoswitcher for obs-studio ---
+--- mateus c. schwarz / mateus.cortiano@gmail.com / mtxwrz#5848 ---
 
 local obs = obslua
 local ffi = require("ffi")
@@ -7,17 +9,17 @@ local ffi = require("ffi")
 --- config
 local srcs_number = 4
 local polling_rate = 2 --- seconds
+local target_class = 'GLFW30'
+local target_exe = 'PokerStars.exe'
 
 local ID_PREFIX = 'src_'
 local TARGET_TYPE = 'window_capture'
-local TARGET_CLASS = 'GLFW30'
-local TARGET_EXE = 'PokerStars.exe'
 
 local srcs_map = {}
 
 -----------------------------------------------------------------------
 
-ffi.cdef[[
+ffi.cdef [[
   int GetWindowThreadProcessId(void* hWnd, void* lpdwProcessId);
   int GetWindowTextLengthA(void* hWnd);
   int GetWindowTextA(void* hWnd, char* str, int count);
@@ -55,11 +57,13 @@ local function get_window_list()
 
   local function callback(hWnd, l)
     if not ffi.C.IsWindowVisible(hWnd) then
-      return true end
+      return true
+    end
 
     local window_class = get_window_class(hWnd)
-    if window_class == TARGET_CLASS then
-      table.insert(res, hWnd) end
+    if window_class == target_class then
+      table.insert(res, hWnd)
+    end
 
     return true
   end
@@ -105,8 +109,8 @@ local function update_sources()
 
     if hwnd then
       local window_title = get_window_title(hwnd)
-                           .. ':' .. TARGET_CLASS
-                           .. ':' .. TARGET_EXE
+          .. ':' .. target_class
+          .. ':' .. target_exe
       local current_title = obs.obs_data_get_string(data, 'window')
 
       if window_title == current_title then
@@ -118,12 +122,11 @@ local function update_sources()
       obs.obs_source_update(scene_item, data)
       obs.obs_source_set_enabled(scene_item, true)
     end
-    
+
     obs.obs_data_release(data)
     ::continue::
   end
 end
-
 
 local function main()
   local matches = 0
@@ -162,8 +165,8 @@ end
 
 local function add_source_dropdown(id, props, sources)
   local list = obs.obs_properties_add_list(props, ID_PREFIX .. id, 'Source ' .. id,
-                                           obs.OBS_COMBO_TYPE_EDITABLE,
-                                           obs.OBS_COMBO_FORMAT_STRING)
+    obs.OBS_COMBO_TYPE_EDITABLE,
+    obs.OBS_COMBO_FORMAT_STRING)
   for _, source in pairs(sources) do
     local name = obs.obs_source_get_name(source)
     local source_id = obs.obs_source_get_unversioned_id(source)
@@ -177,8 +180,8 @@ end
 
 function script_description()
   return '<h1>Hook to window</h1>'
-         .. '<p><font color=#666>author: mtxwrz / mtxwrz@gmail.com / mtxwrz#5848</p><br>'
-         .. '<i>ps. Window Match Priority must be set to Window title must match.</i>'
+      .. '<p><font color=#666>author: mateus c. schwarz / mateus.cortiano@gmail.com / mtxwrz#5848</p><br>'
+      .. '<i>ps. Window Match Priority must be set to "Window title must match".</i>'
 end
 
 function script_defaults(settings)
@@ -211,7 +214,7 @@ function script_update(settings)
 end
 
 function script_unload()
-  obs.timer_remove(main)  
+  obs.timer_remove(main)
 end
 
 function script_properties(settings)
