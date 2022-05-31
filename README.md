@@ -18,6 +18,6 @@ The original intent of this script is to automatically switch poker tables in th
 **TO DO**
 1. Dynamically add or remove number of possible target sources.
 2. Dynamically change the target window class and executable.
-3. The possibility to add more than one target class and executable.
+3. The possibility to add more than one target class and executable (e.g., to target multiple poker sites).
 4. Add start/stop button.
 5. Fix crashing on exit.
